@@ -24,15 +24,13 @@ class TestSearch:
     def test_search(self):
         search_response = self.client.search(**self.params)
         assert type(search_response) is dict
-
+        self.utils.output_to_file('sample',search_response )
 
     @with_setup(setup, teardown)
     def test_missing_one_required(self):
         del self.params['l']
         search_response = self.client.search(**self.params)
         assert type(search_response) is dict
-        self.utils.output_to_file('myfile', search_response)
-        # self.utils.output_to_file('myfile', search_response)
 
     @with_setup(setup, teardown)
     @raises(IndeedClientException)
@@ -74,3 +72,89 @@ class TestSearch:
         search_response = self.client.search(**self.params)
         assert isinstance(search_response, basestring)
         assert parseString(search_response)
+
+    ''' Few Tests written by me '''
+    @with_setup(setup, teardown)
+    def test_search_extra(self):
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+        assert len(self.utils.find_all_jobs_not_contains_job_parameter(search_response, 'city'
+                                                                       , 'austin')) == 0
+        assert len(self.utils.find_all_jobs_not_contains_job_parameter(search_response, 'country', 'US'))\
+               == 0
+        assert len(self.utils.find_all_jobs_not_contains_job_parameter(search_response, 'language', 'en')) \
+               == 0
+        assert self.utils.get_num_jobs(search_response) == 10
+
+    @with_setup(setup, teardown)
+    def test_sort(self):
+        self.params['sort'] = "date"
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+
+    @with_setup(setup, teardown)
+    def test_start(self):
+        self.params['start'] = "2"
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+
+    @with_setup(setup, teardown)
+    def test_limit(self):
+        self.params['limit'] = "25"
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+        assert self.utils.get_num_jobs(search_response) == 25
+
+    @with_setup(setup, teardown)
+    def test_fromage(self):
+        self.params['fromage'] = "2"
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+
+    @with_setup(setup, teardown)
+    def test_limit(self):
+        self.params['limit'] = "25"
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+        assert self.utils.get_num_jobs(search_response) == 25
+
+    @with_setup(setup, teardown)
+    def test_highlight(self):
+        self.params['highlight'] = "1"
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+
+    @with_setup(setup, teardown)
+    def test_duplicate(self):
+        self.params['duplicate'] = "1"
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+
+    @with_setup(setup, teardown)
+    def test_co(self):
+        self.params['co'] = "ca"
+        self.params['l'] = "toronto"
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+
+    @with_setup(setup, teardown)
+    def test_invalid_limit(self):
+        self.params['limit'] = '-100'
+        search_response = self.client.search(**self.params)
+        assert self.utils.get_num_jobs(search_response) == 0
+
+    # trying a bunch of invalid parameters, I noticed that no error is thrown. Instead it seems to ignore. It this correct?
+    # ie. negative fromage, string instead of ints and vs versa
+
+    @with_setup(setup, teardown)
+    def test_several_params(self):
+        self.params['co'] = "ca"
+        self.params['l'] = "toronto"
+        self.params['duplicate'] = "1"
+        self.params['highlight'] = "1"
+        self.params['limit'] = "25"
+        self.params['fromage'] = "10"
+        self.params['start'] = "2"
+        search_response = self.client.search(**self.params)
+        assert type(search_response) is dict
+        assert self.utils.get_num_jobs(search_response) == 25

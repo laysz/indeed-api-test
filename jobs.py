@@ -24,9 +24,9 @@ class TestJobs():
         jobs_response = self.client.jobs(**self.params)
         assert type(jobs_response) is dict
         print jobs_response
-        self.utils.output_to_file('output', jobs_response)
-        self.utils.open_with_subl('output')
-
+        self.utils.output_to_file('output2', jobs_response)
+        self.utils.open_with_subl('output2')
+        self.utils.find_all_jobs_that_contains_job_parameter()
         # self.utils.output_to_file('sample.json', str(j))
         # self.utils.open_with_subl('sample.json')
 
